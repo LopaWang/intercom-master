@@ -14,6 +14,8 @@ import android.os.RemoteException;
 import android.support.annotation.IntDef;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import com.jd.wly.intercom.AudioActivity;
 import com.jd.wly.intercom.R;
@@ -21,15 +23,23 @@ import com.jd.wly.intercom.discover.SignInAndOutReq;
 import com.jd.wly.intercom.input.Encoder;
 import com.jd.wly.intercom.input.Recorder;
 import com.jd.wly.intercom.input.Sender;
+import com.jd.wly.intercom.network.Multicast;
 import com.jd.wly.intercom.output.Decoder;
 import com.jd.wly.intercom.output.Receiver;
 import com.jd.wly.intercom.output.Tracker;
+import com.jd.wly.intercom.users.IntercomUserBean;
 import com.jd.wly.intercom.util.Command;
+import com.jd.wly.intercom.util.Constants;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.MulticastSocket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static android.content.ContentValues.TAG;
 
 public class IntercomService extends Service {
 
@@ -54,6 +64,8 @@ public class IntercomService extends Service {
     public static final int DISCOVERING_SEND = 0;
     public static final int DISCOVERING_RECEIVE = 1;
     public static final int DISCOVERING_LEAVE = 2;
+    public static final int CALL_RELEASE_EVENT = 3;
+    public static final int CALL_RELEASE_RECEVICE = 4;
 
     /**
      * Service与Runnable的通信
@@ -75,6 +87,10 @@ public class IntercomService extends Service {
                 service.findNewUser((String) msg.obj);
             } else if (msg.what == DISCOVERING_LEAVE) {
                 service.removeUser((String) msg.obj);
+            } else if (msg.what == CALL_RELEASE_EVENT) {
+                service.releasePTT((String) msg.obj);
+            } else if (msg.what == CALL_RELEASE_RECEVICE) {
+                service.releaseBTT((String) msg.obj);
             }
         }
     }
@@ -121,6 +137,44 @@ public class IntercomService extends Service {
         mCallbackList.finishBroadcast();
     }
 
+    /**
+     *抬起发送线程
+     * @param ipAddress
+     */
+    public void releasePTT(final String ipAddress) {
+        final int size = mCallbackList.beginBroadcast();
+        for (int i = 0; i < size; i++) {
+            IIntercomCallback callback = mCallbackList.getBroadcastItem(i);
+            if (callback != null) {
+                try {
+                    callback.isNotSpeak(ipAddress);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        mCallbackList.finishBroadcast();
+    }
+    /**
+     *按下发送线程
+     * @param ipAddress
+     */
+    public void releaseBTT(final String ipAddress) {
+        final int size = mCallbackList.beginBroadcast();
+        for (int i = 0; i < size; i++) {
+            IIntercomCallback callback = mCallbackList.getBroadcastItem(i);
+            if (callback != null) {
+                try {
+                    callback.isSpeak(ipAddress);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        mCallbackList.finishBroadcast();
+    }
+
+
     private RemoteCallbackList<IIntercomCallback> mCallbackList = new RemoteCallbackList<>();
 
     public IIntercomService.Stub mBinder = new IIntercomService.Stub() {
@@ -130,6 +184,7 @@ public class IntercomService extends Service {
                 recorder.setRecording(true);
                 tracker.setPlaying(false);
                 threadPool.execute(recorder);
+                receiveReleaseCallEvent();
             }
         }
 
@@ -138,7 +193,48 @@ public class IntercomService extends Service {
             if (recorder.isRecording()) {
                 recorder.setRecording(false);
                 tracker.setPlaying(true);
+                sendReleaseCallEvent();
             }
+        }
+
+        private void sendReleaseCallEvent(){
+            Runnable callRelease=new Runnable() {
+                @Override
+                public void run() {
+                    byte[] data = Command.DISC_CALL_RELEASE.getBytes();
+                    DatagramPacket datagramPacket = new DatagramPacket(
+                            data, data.length, Multicast.getMulticast().getInetAddress(), Constants.MULTI_BROADCAST_PORT);
+                    try {
+                        MulticastSocket multicastSocket = Multicast.getMulticast().getMulticastSocket();
+                        if (multicastSocket != null) {
+                            multicastSocket.send(datagramPacket);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+            threadPool.execute(callRelease);
+        }
+
+        private void receiveReleaseCallEvent(){
+            Runnable callRelease=new Runnable() {
+                @Override
+                public void run() {
+                    byte[] data = Command.DISC_CALL_RELEASE_RECEVICE.getBytes();
+                    DatagramPacket datagramPacket = new DatagramPacket(
+                            data, data.length, Multicast.getMulticast().getInetAddress(), Constants.MULTI_BROADCAST_PORT);
+                    try {
+                        MulticastSocket multicastSocket = Multicast.getMulticast().getMulticastSocket();
+                        if (multicastSocket != null) {
+                            multicastSocket.send(datagramPacket);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            };
+            threadPool.execute(callRelease);
         }
 
         @Override
@@ -253,4 +349,6 @@ public class IntercomService extends Service {
         discoverService.shutdown();
         threadPool.shutdown();
     }
+
+
 }
