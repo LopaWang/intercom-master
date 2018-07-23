@@ -39,6 +39,10 @@ public class SignInAndOutReq extends JobHandler {
                 sendMsg2MainThread();
             } else if (command.equals(Command.DISC_LEAVE)) {
                 setCommand(Command.DISC_REQUEST);
+            }else if (command.equals(Command.DISC_LEAVE)) {
+                setCommand(Command.DISC_CALL_RELEASE);
+            }else if (command.equals(Command.DISC_LEAVE)) {
+                setCommand(Command.DISC_CALL_RELEASE_RECEVICE);
             }
         }
     }

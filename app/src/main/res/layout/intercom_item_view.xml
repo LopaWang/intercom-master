@@ -10,4 +10,12 @@
         android:layout_height="wrap_content"
         android:text="我"
         android:textSize="15dp" />
+    <TextView
+        android:id="@+id/tv_speaking"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/red"
+        android:text="@string/speaking"
+        android:visibility="gone"
+        android:textSize="15dp" />
 </LinearLayout>

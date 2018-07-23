@@ -10,6 +10,8 @@ public class Command {
     public static final String DISC_REQUEST = "DISC_REQUEST";
     public static final String DISC_RESPONSE = "DISC_RESPONSE";
     public static final String DISC_LEAVE = "DISC_LEAVE";
+    public static final String DISC_CALL_RELEASE = "DISC_CALL_RELEASE";
+    public static final String DISC_CALL_RELEASE_RECEVICE = "DISC_CALL_RELEASE_RECEVICE";
 
     // Activity向Service发送的跨进程指令
     public static final String START_FOREGROUND_ACTION = "com.jd.wly.intercom.action.start";

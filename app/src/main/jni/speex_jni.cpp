@@ -44,7 +44,18 @@ JNIEXPORT jint JNICALL Java_com_jd_wly_intercom_audio_Speex_open(JNIEnv *env, jo
     speex_decoder_ctl(dec_state, SPEEX_GET_FRAME_SIZE, &dec_frame_size);
 
     // frame_size = enc_frame_size,
-    preprocess_state = speex_preprocess_state_init(160, 16000);//创建预处理对象
+    preprocess_state = speex_preprocess_state_init(160, 8000);//创建预处理对象
+
+    int denoise = 1;
+    int noiseSuppress = -25;
+    speex_preprocess_ctl(preprocess_state, SPEEX_PREPROCESS_SET_DENOISE, &denoise); //降噪
+    speex_preprocess_ctl(preprocess_state, SPEEX_PREPROCESS_SET_NOISE_SUPPRESS, &noiseSuppress); //设置噪声的dB
+
+    // int agc = 1;
+    // float q = 24000;
+    //actually default is 8000(0,32768),here make it louder for voice is not loudy enough by default. 8000
+    // speex_preprocess_ctl(preprocess_state, SPEEX_PREPROCESS_SET_AGC, &agc);//增益
+    // speex_preprocess_ctl(preprocess_state, SPEEX_PREPROCESS_SET_AGC_LEVEL,&q);
 
     int vad = 1;
     int vadProbStart = 80;
@@ -59,12 +70,12 @@ JNIEXPORT jint JNICALL Java_com_jd_wly_intercom_audio_Speex_open(JNIEnv *env, jo
 
 extern "C"
 JNIEXPORT jint JNICALL Java_com_jd_wly_intercom_audio_Speex_encode
-    (JNIEnv *env, jobject obj, jshortArray lin, jbyteArray encoded, jint size) {
+        (JNIEnv *env, jobject obj, jshortArray lin, jbyteArray encoded, jint size) {
 
     jshort buffer[enc_frame_size];
     jbyte output_buffer[enc_frame_size];
     int nSamples = size / enc_frame_size;
-    int i, tot_bytes, curr_bytes = 0;
+    int i = 0, tot_bytes = 0, curr_bytes = 0;
 
     if (!codec_open)
         return 0;
@@ -90,7 +101,7 @@ JNIEXPORT jint JNICALL Java_com_jd_wly_intercom_audio_Speex_encode
 
 extern "C"
 JNIEXPORT jint JNICALL Java_com_jd_wly_intercom_audio_Speex_decode
-    (JNIEnv *env, jobject obj, jbyteArray encoded, jshortArray lin, jint size) {
+        (JNIEnv *env, jobject obj, jbyteArray encoded, jshortArray lin, jint size) {
 
     jbyte buffer[dec_frame_size];
     jshort output_buffer[dec_frame_size];
@@ -118,7 +129,7 @@ JNIEXPORT jint JNICALL Java_com_jd_wly_intercom_audio_Speex_decode
 
 extern "C"
 JNIEXPORT jint JNICALL Java_com_jd_wly_intercom_audio_Speex_getFrameSize
-    (JNIEnv *env, jobject obj) {
+        (JNIEnv *env, jobject obj) {
 
     if (!codec_open)
         return 0;
@@ -128,7 +139,7 @@ JNIEXPORT jint JNICALL Java_com_jd_wly_intercom_audio_Speex_getFrameSize
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_jd_wly_intercom_audio_Speex_close
-    (JNIEnv *env, jobject obj) {
+        (JNIEnv *env, jobject obj) {
 
     if (--codec_open != 0)
         return;

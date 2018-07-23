@@ -41,7 +41,9 @@ public class Receiver extends JobHandler {
             // 判断数据报文类型，并做相应处理
             if (datagramPacket.getLength() == Command.DISC_REQUEST.getBytes().length ||
                     datagramPacket.getLength() == Command.DISC_LEAVE.getBytes().length ||
-                    datagramPacket.getLength() == Command.DISC_RESPONSE.getBytes().length) {
+                    datagramPacket.getLength() == Command.DISC_RESPONSE.getBytes().length||
+                    datagramPacket.getLength() == Command.DISC_CALL_RELEASE.getBytes().length||
+                    datagramPacket.getLength() == Command.DISC_CALL_RELEASE_RECEVICE.getBytes().length) {
                 handleCommandData(datagramPacket);
             } else {
                 handleAudioData(datagramPacket);
@@ -76,6 +78,12 @@ public class Receiver extends JobHandler {
         } else if (content.equals(Command.DISC_LEAVE) &&
                 !packet.getAddress().toString().equals("/" + IPUtil.getLocalIPAddress())) {
             sendMsg2MainThread(packet.getAddress().toString(), IntercomService.DISCOVERING_LEAVE);
+        }else if (content.equals(Command.DISC_CALL_RELEASE) &&
+                !packet.getAddress().toString().equals("/" + IPUtil.getLocalIPAddress())) {
+            sendMsg2MainThread(packet.getAddress().toString(), IntercomService.CALL_RELEASE_EVENT);
+        }else if (content.equals(Command.DISC_CALL_RELEASE_RECEVICE) &&
+                !packet.getAddress().toString().equals("/" + IPUtil.getLocalIPAddress())) {
+            sendMsg2MainThread(packet.getAddress().toString(), IntercomService.CALL_RELEASE_RECEVICE);
         }
     }
 

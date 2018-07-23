@@ -23,15 +23,14 @@ public class Constants {
     public static final int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
 
     // 音频获取源
-    public static final int audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION;
+    public static final int audioSource = MediaRecorder.AudioSource.VOICE_RECOGNITION;
     // 输入单声道
     public static final int inputChannelConfig = AudioFormat.CHANNEL_IN_MONO;
 
     // 音频播放端
-    public static final int streamType = AudioManager.STREAM_VOICE_CALL;
+    public static final int streamType = AudioManager.STREAM_MUSIC;
     // 输出单声道
     public static final int outputChannelConfig = AudioFormat.CHANNEL_OUT_MONO;
     // 音频输出模式
     public static final int trackMode = AudioTrack.MODE_STREAM;
-
 }
