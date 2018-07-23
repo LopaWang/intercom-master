@@ -20,7 +20,11 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,10 +40,15 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AudioActivity extends Activity {
+import static android.content.ContentValues.TAG;
+
+public class AudioActivity extends Activity implements View.OnTouchListener {
 
     private RecyclerView localNetworkUser;
     private TextView currentIp;
+    private ImageView chatRecord;
+    private TextView startIntercom;
+
 
     private List<IntercomUserBean> userBeanList = new ArrayList<>();
     private IntercomAdapter intercomAdapter;
@@ -83,6 +92,27 @@ public class AudioActivity extends Activity {
 
     private static final int FOUND_NEW_USER = 0;
     private static final int REMOVE_USER = 1;
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+
+        if (v == chatRecord) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    keyDown();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private void keyDown() {
+        try {
+            intercomService.startRecord();
+        } catch (RemoteException e) {
+            Log.i(TAG, "onKeyDown: e ="  + e.toString());
+            e.printStackTrace();
+        }
+    }
 
     /**
      * 跨进程回调更新界面
@@ -160,6 +190,11 @@ public class AudioActivity extends Activity {
         localNetworkUser.setAdapter(intercomAdapter);
         // 添加自己
         addNewUser(new IntercomUserBean(IPUtil.getLocalIPAddress(), "我"));
+
+        startIntercom = (TextView) findViewById(R.id.start_intercom);
+        startIntercom.setOnTouchListener(this);
+        chatRecord = (ImageView) findViewById(R.id.chat_record);
+        chatRecord.setOnTouchListener(this);
         // 设置当前IP地址
         currentIp = (TextView) findViewById(R.id.activity_audio_current_ip);
         currentIp.setText(IPUtil.getLocalIPAddress());
@@ -203,6 +238,7 @@ public class AudioActivity extends Activity {
             try {
                 intercomService.startRecord();
             } catch (RemoteException e) {
+                Log.i(TAG, "onKeyDown: e ="  + e.toString());
                 e.printStackTrace();
             }
             return true;

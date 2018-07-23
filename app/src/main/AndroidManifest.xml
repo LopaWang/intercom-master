@@ -18,7 +18,8 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:hardwareAccelerated="false">>
         <activity
             android:name=".AudioActivity"
             android:label="@string/title_activity_home"
@@ -32,6 +33,7 @@
 
         <service
             android:name=".service.IntercomService"
+            android:priority="1000"
             android:process=":intercom" />
     </application>
 

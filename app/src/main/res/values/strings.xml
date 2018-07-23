@@ -3,4 +3,16 @@
     <string name="send_success">发送 成功</string>
     <string name="send_failed">发送失败</string>
     <string name="title_activity_home">对讲机</string>
+    <string name="current_user">当前局域网的对讲机用户：\n（按住F2键即可对讲）</string>
+    <string name="press_talk">按住说话</string>
+    <string name="close">关闭</string>
+    <string name="current_ip">当前IP地址为：</string>
+    <string name="speaking">正在讲话</string>
+    <string name="leave_end">松开结束</string>
+    <string name="press_speak">按住说话</string>
+    <string name="play_end">播放结束</string>
+    <string name="other_speak">有人讲话</string>
+    <string name="permission_success">权限申请成功</string>
+    <string name="permission_fail">权限申请失败</string>
+    <string name="me">我</string>
 </resources>
