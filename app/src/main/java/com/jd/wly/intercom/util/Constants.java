@@ -18,7 +18,7 @@ public class Constants {
     // 单播端口号
     public static final int UNICAST_PORT = 10000;
     // 采样频率
-    public static final int sampleRateInHz = 44100;
+    public static final int sampleRateInHz = 8000;
     // 音频数据格式:PCM 16位每个样本，保证设备支持。
     public static final int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
 
