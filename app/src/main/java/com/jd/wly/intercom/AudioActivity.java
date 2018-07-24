@@ -54,6 +54,7 @@ public class AudioActivity extends Activity implements View.OnTouchListener {
     private SoundPool mSoundPool;//摇一摇音效
 
     private boolean isOtherPlaying = false;
+    private boolean isFirstDown = true;
 
 
     private List<IntercomUserBean> userBeanList = new ArrayList<>();
@@ -264,7 +265,12 @@ public class AudioActivity extends Activity implements View.OnTouchListener {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_F2 ||
                 keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)) {
-            keyDown();
+            if (!isOtherPlaying && isFirstDown) {
+                keyDown();
+                isFirstDown = false;
+            }else if(isOtherPlaying){
+                mSoundPool.play(mWeiChatAudioError, 1, 1, 0, 0, 1);
+            }
             return true;
         }
         return super.onKeyDown(keyCode, event);
@@ -274,7 +280,10 @@ public class AudioActivity extends Activity implements View.OnTouchListener {
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         if ((keyCode == KeyEvent.KEYCODE_F2 ||
                 keyCode == KeyEvent.KEYCODE_VOLUME_UP || keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)) {
-            keyUp();
+            if (!isOtherPlaying) {
+                keyUp();
+                isFirstDown = true;
+            }
             return true;
         }
         return super.onKeyUp(keyCode, event);
