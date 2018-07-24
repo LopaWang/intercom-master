@@ -1,21 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:padding="16dp">
+    android:orientation="vertical">
+
+    <widget.CNiaoToolBar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:isShowSearchView="true"
+        app:isShowLeftIcon="false"
+        android:background="?attr/colorPrimary"
+        app:theme="@style/ToolbarTheme"
+        ></widget.CNiaoToolBar>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        android:orientation="vertical">
 
     <TextView
         android:id="@+id/activity_audio_local_network_user_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:text="当前局域网的对讲机用户：\n（按住F2键即可对讲）"
         android:textSize="15sp" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/activity_audio_local_network_user_rv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:layout_below="@+id/activity_audio_local_network_user_tv"
         android:layout_marginBottom="25dp"
         android:layout_marginTop="10dp"
@@ -64,7 +81,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="20dp"
         android:orientation="horizontal">
         <TextView
             android:layout_width="wrap_content"
@@ -80,4 +97,5 @@
             android:textSize="15sp"/>
     </LinearLayout>
     </LinearLayout>
-</RelativeLayout>
+    </LinearLayout>
+</LinearLayout>

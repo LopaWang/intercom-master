@@ -21,10 +21,13 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +37,7 @@ import com.jd.wly.intercom.service.IIntercomService;
 import com.jd.wly.intercom.service.IntercomService;
 import com.jd.wly.intercom.users.IntercomAdapter;
 import com.jd.wly.intercom.users.IntercomUserBean;
+import com.jd.wly.intercom.users.OverflowAdapter;
 import com.jd.wly.intercom.users.VerticalSpaceItemDecoration;
 import com.jd.wly.intercom.util.IPUtil;
 
@@ -41,14 +45,22 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.content.ContentValues.TAG;
+import widget.CNiaoToolBar;
+import widget.OverflowHelper;
 
-public class AudioActivity extends Activity implements View.OnTouchListener {
+import static android.content.ContentValues.TAG;
+import static android.content.Intent.ACTION_EDIT;
+
+public class AudioActivity extends Activity implements View.OnTouchListener, View.OnClickListener {
 
     private RecyclerView localNetworkUser;
     private TextView currentIp;
     private ImageView chatRecord;
     private TextView startIntercom;
+    private CNiaoToolBar mToolbar;
+    private OverflowHelper mOverflowHelper;
+    private OverflowAdapter.OverflowItem[] mItems;
+
 
     private int mWeiChatAudioError ,mWeiChatAudioBegin , mWeiChatAudioUp;
     private SoundPool mSoundPool;//摇一摇音效
@@ -134,6 +146,7 @@ public class AudioActivity extends Activity implements View.OnTouchListener {
     }
 
 
+
     /**
      * 跨进程回调更新界面
      */
@@ -204,7 +217,24 @@ public class AudioActivity extends Activity implements View.OnTouchListener {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
+    /**
+     * 改变标题栏
+     */
+    private void initToolBar() {
+        mToolbar = (CNiaoToolBar) findViewById(R.id.toolbar);
+        mToolbar.hideSearchView();
+        mToolbar.showTitleView();
+        mToolbar.setTitle(R.string.WXTalk);
+        mToolbar.getRightButton().setVisibility(View.VISIBLE);
+        mToolbar.setRightButtonIcon(getResources().getDrawable(R.drawable.ic_list_normal));
+        mToolbar.getRightButton().setOnClickListener(this);
+        mToolbar.getRightButton().setTag(ACTION_EDIT);
+        mOverflowHelper = new OverflowHelper(this);
+    }
+
+
     private void initView() {
+        initToolBar();
         // 设置用户列表
         localNetworkUser = (RecyclerView) findViewById(R.id.activity_audio_local_network_user_rv);
         localNetworkUser.setLayoutManager(new LinearLayoutManager(this));
@@ -409,5 +439,59 @@ public class AudioActivity extends Activity implements View.OnTouchListener {
         }
     }
 
+
+    @Override
+    public void onClick(View v) {
+        if(v.getId() == R.id.toolbar_rightButton){
+            controlPlusSubMenu();
+        }
+    }
+    private void controlPlusSubMenu() {
+        if (mOverflowHelper == null) {
+            return;
+        }
+
+        if (mOverflowHelper.isOverflowShowing()) {
+            mOverflowHelper.dismiss();
+            return;
+        }
+
+        if(mItems == null) {
+            initOverflowItems();
+        }
+
+        mOverflowHelper.setOverflowItems(mItems);
+        mOverflowHelper .setOnOverflowItemClickListener(mOverflowItemCliclListener);
+        mOverflowHelper.showAsDropDown(findViewById(R.id.toolbar_rightButton));
+    }
+
+
+    void initOverflowItems() {
+        if (mItems == null) {
+                mItems = new OverflowAdapter.OverflowItem[2];
+                mItems[0] = new OverflowAdapter.OverflowItem( getString(R.string.settings));
+                mItems[1] = new OverflowAdapter.OverflowItem( getString(R.string.exit));
+        }
+
+    }
+
+    private final AdapterView.OnItemClickListener mOverflowItemCliclListener = new AdapterView.OnItemClickListener() {
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position,
+                                long id) {
+            controlPlusSubMenu();
+
+            OverflowAdapter.OverflowItem overflowItem= mItems[position];
+            String title=overflowItem.getTitle();
+
+            if (getString(R.string.settings).equals(title)) {
+                Toast.makeText(AudioActivity.this,"设置 ",Toast.LENGTH_LONG).show();
+            } else if (getString(R.string.exit).equals(title)) {
+                Toast.makeText(AudioActivity.this,"退出 ",Toast.LENGTH_LONG).show();
+            }
+        }
+
+    };
 
 }

@@ -377,5 +377,10 @@
 
     <color name="colorAccent">#FF4081</color>
     <color name="colorBlue">#418CFF</color>
+    <item name="menu_pressed_color" type="color">@color/small_line_color</item>
+    <color name="small_line_color">#26000000</color>
+    <color name="text_disabled">#ffa8a8a8</color>
+    <color name="common_popup_menu_list_divider">#ff191919</color>
+    <color name="transparent_">#e0000000</color>
 
 </resources>

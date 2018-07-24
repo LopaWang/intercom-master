@@ -16,5 +16,21 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
+    <style name="search_view">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textColorHint">@color/white</item>
+        <item name="android:background">@drawable/selector_search_view</item>
+        <item name="android:paddingTop">6dp</item>
+        <item name="android:paddingBottom">6dp</item>
+        <item name="android:paddingLeft">4dp</item>
+        <item name="android:singleLine">true</item>
+    </style>
+    <!-- toolbar菜单样式 -->
+    <style name="ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.ActionBar">
+        <!-- 修改字体大小 -->
+        <item name="android:textSize">15sp</item>
+        <!-- 修改字体颜色 -->
+        <item name="android:textColor">@color/base_black</item>
+    </style>
 </resources>

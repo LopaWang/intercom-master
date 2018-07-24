@@ -15,4 +15,7 @@
     <string name="permission_success">权限申请成功</string>
     <string name="permission_fail">权限申请失败</string>
     <string name="me">我</string>
+    <string name="WXTalk">维信通广对讲</string>
+    <string name="settings">设置</string>
+    <string name="exit">退出</string>
 </resources>
