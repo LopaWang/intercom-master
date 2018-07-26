@@ -37,4 +37,3 @@ build/
 #NDK
 obj/
 app/libs/
-app/src/main/res/drawable/

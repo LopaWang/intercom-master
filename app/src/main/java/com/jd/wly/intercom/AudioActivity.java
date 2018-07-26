@@ -550,6 +550,11 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
                 @Override
                 public boolean onLongClick(View v) {
                     Toast.makeText(getApplicationContext(), "长按", Toast.LENGTH_SHORT).show();
+                    if (!isOtherPlaying) {
+                        keyDown();
+                    }else {
+                        mSoundPool.play(mWeiChatAudioError, 1, 1, 0, 0, 1);
+                    }
                     return false;
                 }
             });
