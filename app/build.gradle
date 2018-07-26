@@ -5,7 +5,7 @@ android {
     buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "com.jd.wly.intercom"
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
@@ -32,10 +32,11 @@ dependencies {
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    implementation 'com.android.support:appcompat-v7:25.1.0'
+    implementation 'com.android.support:appcompat-v7:26.+'
     implementation 'com.android.support.constraint:constraint-layout:1.0.0-alpha7'
-    implementation 'com.android.support:design:25.3.1'
+    implementation 'com.android.support:design:26+'
     testImplementation 'junit:junit:4.12'
 
-    implementation 'com.android.support:recyclerview-v7:24.2.0'
+    implementation 'com.android.support:recyclerview-v7:26.+'
+    implementation 'com.github.yhaolpz:FloatWindow:1.0.9'
 }

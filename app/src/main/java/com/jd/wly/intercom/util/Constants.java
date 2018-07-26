@@ -33,4 +33,8 @@ public class Constants {
     public static final int outputChannelConfig = AudioFormat.CHANNEL_OUT_MONO;
     // 音频输出模式
     public static final int trackMode = AudioTrack.MODE_STREAM;
+
+
+    // 是否打开悬浮窗
+    public static final String ISOPENFLOAT = "isopenfloat";
 }

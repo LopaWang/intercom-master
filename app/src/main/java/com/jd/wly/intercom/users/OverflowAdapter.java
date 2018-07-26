@@ -241,7 +241,10 @@ public class OverflowAdapter extends CommAdapter {
 			return title;
 		}
 
-		
+        public String setTitle(String title) {
+            this.title = title;
+            return this.title;
+        }
         
         
 

@@ -27,6 +27,7 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.BounceInterpolator;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -39,7 +40,14 @@ import com.jd.wly.intercom.users.IntercomAdapter;
 import com.jd.wly.intercom.users.IntercomUserBean;
 import com.jd.wly.intercom.users.OverflowAdapter;
 import com.jd.wly.intercom.users.VerticalSpaceItemDecoration;
+import com.jd.wly.intercom.util.Constants;
 import com.jd.wly.intercom.util.IPUtil;
+import com.jd.wly.intercom.util.PreferencesUtils;
+import com.yhao.floatwindow.FloatWindow;
+import com.yhao.floatwindow.MoveType;
+import com.yhao.floatwindow.PermissionListener;
+import com.yhao.floatwindow.Screen;
+import com.yhao.floatwindow.ViewStateListener;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -55,7 +63,7 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
 
     private RecyclerView localNetworkUser;
     private TextView currentIp;
-    private ImageView chatRecord;
+    private ImageView chatRecord , imageView ;
     private TextView startIntercom;
     private CNiaoToolBar mToolbar;
     private OverflowHelper mOverflowHelper;
@@ -127,7 +135,7 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
     @Override
     public boolean onTouch(View v, MotionEvent event) {
 
-        if (v == chatRecord) {
+        if (v == chatRecord || v == imageView) {
             if (event.getAction() == MotionEvent.ACTION_DOWN) {
                 if (!isOtherPlaying) {
                     keyDown();
@@ -258,6 +266,7 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
         mWeiChatAudioError = mSoundPool.load(this, R.raw.talkroom_sasasa, 1);
         mWeiChatAudioBegin = mSoundPool.load(this, R.raw.talkroom_begin_ham, 1);
         mWeiChatAudioUp = mSoundPool.load(this, R.raw.talkroom_up_ham, 1);
+        initFloat();
     }
 
     private void initData() {
@@ -469,7 +478,11 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
     void initOverflowItems() {
         if (mItems == null) {
                 mItems = new OverflowAdapter.OverflowItem[2];
-                mItems[0] = new OverflowAdapter.OverflowItem( getString(R.string.settings));
+                if(!PreferencesUtils.getBoolean(getApplicationContext(), Constants.ISOPENFLOAT)){
+                    mItems[0] = new OverflowAdapter.OverflowItem( getString(R.string.open_float_talk));
+                }else {
+                    mItems[0] = new OverflowAdapter.OverflowItem( getString(R.string.close_float_talk));
+                }
                 mItems[1] = new OverflowAdapter.OverflowItem( getString(R.string.exit));
         }
 
@@ -485,13 +498,115 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
             OverflowAdapter.OverflowItem overflowItem= mItems[position];
             String title=overflowItem.getTitle();
 
-            if (getString(R.string.settings).equals(title)) {
-                Toast.makeText(AudioActivity.this,"设置 ",Toast.LENGTH_LONG).show();
+            if (getString(R.string.open_float_talk).equals(title)) {
+                mItems[0].setTitle(getString(R.string.close_float_talk));
+                PreferencesUtils.putBoolean( getApplicationContext(), Constants.ISOPENFLOAT , true);
+                openFloat();
+            }else if (getString(R.string.close_float_talk).equals(title)) {
+                mItems[0].setTitle(getString(R.string.open_float_talk));
+                PreferencesUtils.putBoolean( getApplicationContext(), Constants.ISOPENFLOAT , false);
+                closeFloat();
             } else if (getString(R.string.exit).equals(title)) {
-                Toast.makeText(AudioActivity.this,"退出 ",Toast.LENGTH_LONG).show();
+                Toast.makeText(AudioActivity.this,"退出 ",Toast.LENGTH_SHORT).show();
             }
         }
 
     };
 
+    private void openFloat(){
+        //显示
+        FloatWindow.get().show();
+    }
+
+    private void closeFloat(){
+        //隐藏
+        FloatWindow.get().hide();
+    }
+    private void initFloat(){
+        if(null == FloatWindow.get()) {
+            imageView = new ImageView(getApplicationContext());
+            imageView.setImageResource(R.drawable.se_icon_voice_default);
+            FloatWindow
+                    .with(getApplicationContext())
+                    .setView(imageView)
+                    .setWidth(Screen.width, 0.2f) //设置悬浮控件宽高
+                    .setHeight(Screen.width, 0.2f)
+                    .setX(Screen.width, 0.8f)
+                    .setY(Screen.height, 0.3f)
+                    .setMoveType(MoveType.active)
+                    .setMoveStyle(500, new BounceInterpolator())
+                    .setViewStateListener(mViewStateListener)
+                    .setPermissionListener(mPermissionListener)
+                    .setDesktopShow(true)
+                    .build();
+
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(getApplicationContext(), "onClick", Toast.LENGTH_SHORT).show();
+                }
+            });
+            imageView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Toast.makeText(getApplicationContext(), "长按", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+            });
+        }
+    }
+
+    private PermissionListener mPermissionListener = new PermissionListener() {
+        @Override
+        public void onSuccess() {
+            Log.d(TAG, "onSuccess");
+        }
+
+        @Override
+        public void onFail() {
+            Log.d(TAG, "onFail");
+        }
+    };
+
+    private ViewStateListener mViewStateListener = new ViewStateListener() {
+        @Override
+        public void onPositionUpdate(int x, int y) {
+            Log.d(TAG, "onPositionUpdate: x=" + x + " y=" + y);
+        }
+
+        @Override
+        public void onShow() {
+            Log.d(TAG, "onShow");
+            if(!PreferencesUtils.getBoolean(getApplicationContext(),Constants.ISOPENFLOAT)){
+                FloatWindow.get().hide();
+            }else {
+                FloatWindow.get().show();
+            }
+        }
+
+        @Override
+        public void onHide() {
+            Log.d(TAG, "onHide");
+        }
+
+        @Override
+        public void onDismiss() {
+            Log.d(TAG, "onDismiss");
+        }
+
+        @Override
+        public void onMoveAnimStart() {
+            Log.d(TAG, "onMoveAnimStart");
+        }
+
+        @Override
+        public void onMoveAnimEnd() {
+            Log.d(TAG, "onMoveAnimEnd");
+        }
+
+        @Override
+        public void onBackToDesktop() {
+            Log.d(TAG, "onBackToDesktop");
+        }
+    };
 }
