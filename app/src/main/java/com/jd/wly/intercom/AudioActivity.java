@@ -9,13 +9,17 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Process;
 import android.os.RemoteException;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -33,6 +37,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jd.wly.intercom.floatwindow.FloatWindow;
+import com.jd.wly.intercom.floatwindow.MoveType;
+import com.jd.wly.intercom.floatwindow.PermissionListener;
+import com.jd.wly.intercom.floatwindow.PermissionUtil;
+import com.jd.wly.intercom.floatwindow.Screen;
+import com.jd.wly.intercom.floatwindow.ViewStateListener;
 import com.jd.wly.intercom.service.IIntercomCallback;
 import com.jd.wly.intercom.service.IIntercomService;
 import com.jd.wly.intercom.service.IntercomService;
@@ -43,11 +53,6 @@ import com.jd.wly.intercom.users.VerticalSpaceItemDecoration;
 import com.jd.wly.intercom.util.Constants;
 import com.jd.wly.intercom.util.IPUtil;
 import com.jd.wly.intercom.util.PreferencesUtils;
-import com.yhao.floatwindow.FloatWindow;
-import com.yhao.floatwindow.MoveType;
-import com.yhao.floatwindow.PermissionListener;
-import com.yhao.floatwindow.Screen;
-import com.yhao.floatwindow.ViewStateListener;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -80,6 +85,7 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
     private List<IntercomUserBean> userBeanList = new ArrayList<>();
     private IntercomAdapter intercomAdapter;
     private static final int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 1;
+    private static final int MY_PERMISSIONS_REQUEST_FLOAT_WINDOW = 756232212;
 
     /**
      * onServiceConnected和onServiceDisconnected运行在UI线程中
@@ -210,19 +216,6 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
             initData();
         }
         initView();
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        if (requestCode == MY_PERMISSIONS_REQUEST_RECORD_AUDIO) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(AudioActivity.this, "权限申请成功", Toast.LENGTH_SHORT).show();
-                initData();
-            } else {
-                Toast.makeText(AudioActivity.this, "权限申请失败", Toast.LENGTH_SHORT).show();
-            }
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     /**
@@ -573,6 +566,7 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
         }
     };
 
+
     private ViewStateListener mViewStateListener = new ViewStateListener() {
         @Override
         public void onPositionUpdate(int x, int y) {
@@ -612,6 +606,13 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
         @Override
         public void onBackToDesktop() {
             Log.d(TAG, "onBackToDesktop");
+        }
+
+        @Override
+        public void onUp() {
+            if (!isOtherPlaying) {
+                keyUp();
+            }
         }
     };
 }

@@ -339,7 +339,9 @@ public class IntercomService extends Service {
      */
     private void free() {
         // 释放线程资源
-        recorder.free();
+        if(recorder.isRecording()){
+            recorder.free();
+        }
         encoder.free();
         sender.free();
         receiver.free();
