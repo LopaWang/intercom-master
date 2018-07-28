@@ -17,7 +17,7 @@ import java.lang.reflect.Method;
  * https://github.com/yhaolpz
  */
 
-public class PermissionUtil {
+class PermissionUtil {
 
     static boolean hasPermission(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -27,7 +27,7 @@ public class PermissionUtil {
         }
     }
 
-    public static boolean hasPermissionOnActivityResult(Context context) {
+    static boolean hasPermissionOnActivityResult(Context context) {
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.N_MR1) {
             return hasPermissionForO(context);
         }

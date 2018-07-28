@@ -40,7 +40,6 @@ import android.widget.Toast;
 import com.jd.wly.intercom.floatwindow.FloatWindow;
 import com.jd.wly.intercom.floatwindow.MoveType;
 import com.jd.wly.intercom.floatwindow.PermissionListener;
-import com.jd.wly.intercom.floatwindow.PermissionUtil;
 import com.jd.wly.intercom.floatwindow.Screen;
 import com.jd.wly.intercom.floatwindow.ViewStateListener;
 import com.jd.wly.intercom.service.IIntercomCallback;
@@ -208,15 +207,34 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_audio);
+        initFloat();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO},
                     MY_PERMISSIONS_REQUEST_RECORD_AUDIO);
         }else {
             initData();
+            initView();
         }
-        initView();
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == MY_PERMISSIONS_REQUEST_RECORD_AUDIO) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(AudioActivity.this, getResources().getText(R.string.permission_success), Toast.LENGTH_SHORT).show();
+                initData();
+                initView();
+            } else {
+                Toast.makeText(AudioActivity.this,  getResources().getText(R.string.permission_fail), Toast.LENGTH_SHORT).show();
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+
+
 
     /**
      * 改变标题栏
@@ -259,7 +277,7 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
         mWeiChatAudioError = mSoundPool.load(this, R.raw.talkroom_sasasa, 1);
         mWeiChatAudioBegin = mSoundPool.load(this, R.raw.talkroom_begin_ham, 1);
         mWeiChatAudioUp = mSoundPool.load(this, R.raw.talkroom_up_ham, 1);
-        initFloat();
+
     }
 
     private void initData() {
@@ -324,7 +342,7 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
 
     private void keyDown() {
         try {
-
+            if(intercomService  != null)
             intercomService.startRecord();
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -337,6 +355,7 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
 
     private void keyUp() {
         try {
+            if(intercomService  != null)
             intercomService.stopRecord();
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -351,6 +370,7 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
     public void onBackPressed() {
         // 发送离开群组消息
         try {
+            if(intercomService  != null)
             intercomService.leaveGroup();
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -516,7 +536,6 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
         FloatWindow.get().hide();
     }
     private void initFloat(){
-        if(null == FloatWindow.get()) {
             imageView = new ImageView(getApplicationContext());
             imageView.setImageResource(R.drawable.se_icon_voice_default);
             FloatWindow
@@ -552,7 +571,6 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
                 }
             });
         }
-    }
 
     private PermissionListener mPermissionListener = new PermissionListener() {
         @Override

@@ -3,6 +3,7 @@ package com.jd.wly.intercom.input;
 import android.media.AudioRecord;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.jd.wly.intercom.data.AudioData;
 import com.jd.wly.intercom.data.MessageQueue;
@@ -29,14 +30,19 @@ public class Recorder extends JobHandler {
         super(handler);
         // 获取音频数据缓冲段大小
         if(audioRecord != null) {
+            Log.i(TAG, "Recorder: =====" + audioRecord.getState());
             audioRecord.release();
             audioRecord = null;
+        }else{
+            Log.i(TAG, "Recorder:audioRecord ===== null");
         }
             inAudioBufferSize = AudioRecord.getMinBufferSize(
                     Constants.sampleRateInHz, Constants.inputChannelConfig, Constants.audioFormat);
             // 初始化音频录制
-            audioRecord = new AudioRecord(Constants.audioSource,
-                    Constants.sampleRateInHz, Constants.inputChannelConfig, Constants.audioFormat, inAudioBufferSize);
+         if(audioRecord == null) {
+             audioRecord = new AudioRecord(Constants.audioSource,
+                     Constants.sampleRateInHz, Constants.inputChannelConfig, Constants.audioFormat, inAudioBufferSize);
+         }
     }
 
     public boolean isRecording() {
@@ -52,7 +58,7 @@ public class Recorder extends JobHandler {
         while (isRecording) {
             Log.i(TAG, "run: audioRecord.getRecordingState() = " + audioRecord.getRecordingState());
             if (audioRecord.getRecordingState() == AudioRecord.STATE_INITIALIZED) {
-                audioRecord.startRecording();
+                 audioRecord.startRecording();
             }
             // 实例化音频数据缓冲
             short[] rawData = new short[inAudioBufferSize];
