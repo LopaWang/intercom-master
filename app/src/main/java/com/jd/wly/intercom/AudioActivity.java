@@ -300,8 +300,13 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
     @Override
     protected void onStart() {
         super.onStart();
-        Intent intent = new Intent(AudioActivity.this, IntercomService.class);
-        bindService(intent, serviceConnection, BIND_AUTO_CREATE);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+        }else {
+            Intent intent = new Intent(AudioActivity.this, IntercomService.class);
+            bindService(intent, serviceConnection, BIND_AUTO_CREATE);
+        }
+
     }
 
     /**
