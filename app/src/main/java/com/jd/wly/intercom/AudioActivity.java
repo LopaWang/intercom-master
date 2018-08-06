@@ -83,6 +83,9 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
 
     private List<IntercomUserBean> userBeanList = new ArrayList<>();
     private IntercomAdapter intercomAdapter;
+    private Intent intentService;
+
+
     private static final int MY_PERMISSIONS_REQUEST_RECORD_AUDIO = 1;
     private static final int MY_PERMISSIONS_REQUEST_FLOAT_WINDOW = 756232212;
 
@@ -284,8 +287,8 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
         // 初始化AudioManager配置
         initAudioManager();
         // 启动Service
-        Intent intent = new Intent(AudioActivity.this, IntercomService.class);
-        startService(intent);
+        intentService = new Intent(AudioActivity.this, IntercomService.class);
+        startService(intentService);
     }
 
     /**
@@ -526,10 +529,16 @@ public class AudioActivity extends Activity implements View.OnTouchListener, Vie
                 closeFloat();
             } else if (getString(R.string.exit).equals(title)) {
                 Toast.makeText(AudioActivity.this,"退出 ",Toast.LENGTH_SHORT).show();
+                exit();
             }
         }
 
     };
+
+    private void exit() {
+        finish();
+//        stopService(intentService);
+    }
 
     private void openFloat(){
         //显示
